@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         IMAGE_NAME = "my-springboot-app"
-        REGISTRY_URL = "localhost:7001"
-        IMAGE_TAG = "${REGISTRY_URL}/${IMAGE_NAME}:latest"  // Correct full image tag
+        REGISTRY = "localhost:7001"
+        IMAGE_TAG = "${REGISTRY}/${IMAGE_NAME}:latest"
     }
 
     stages {
@@ -20,26 +20,18 @@ pipeline {
             steps {
                 script {
                     def localImage = docker.image("${IMAGE_NAME}:latest")
-                    // Tag local image with registry URL + image name + tag
+
+                    // Correct tagging:
                     localImage.tag("${IMAGE_TAG}")
 
-                    docker.withRegistry("http://${REGISTRY_URL}", 'admin') {
+                    docker.withRegistry("http://${REGISTRY}", 'admin') {
                         docker.image("${IMAGE_TAG}").push()
                     }
                 }
             }
         }
     }
-
-    post {
-        success {
-            echo "Docker image '${IMAGE_TAG}' built and pushed successfully."
-        }
-    }
 }
-
-
-
 
 
 
