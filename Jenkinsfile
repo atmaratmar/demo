@@ -16,7 +16,7 @@ pipeline {
         stage('Tag and Push') {
             steps {
                 script {
-                    docker.withRegistry("http://${env.DOCKER_REGISTRY}", '2e0fbd30-24f3-404d-8ed4-987d26a68bd4') {
+                    docker.withRegistry("http://${env.DOCKER_REGISTRY}", 'nexus-creds') {
                         def appImage = docker.image("${IMAGE_NAME}:latest")
                         // Push the image to the Nexus registry
                         appImage.push()
