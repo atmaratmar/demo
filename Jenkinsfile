@@ -3,8 +3,10 @@ pipeline {
 
     environment {
         IMAGE_NAME = "my-springboot-app"
-        NEXUS_URL = "localhost:6555/docker-hosted"
-        IMAGE_TAG = "${NEXUS_URL}/${IMAGE_NAME}:latest"
+        NEXUS_PORT = "6555"
+        NEXUS_REPO = "docker-hosted" // the repo name shown in Nexus
+        NEXUS_URL = "localhost:${NEXUS_PORT}"
+        IMAGE_TAG = "${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest"
     }
 
     stages {
