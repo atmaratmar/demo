@@ -3,57 +3,36 @@ pipeline {
 
     environment {
         IMAGE_NAME = "my-springboot-app"
-        REGISTRY_PORT = "7001"
-        REGISTRY_URL = "localhost:${REGISTRY_PORT}"
-        IMAGE_TAG = "${REGISTRY_URL}/${IMAGE_NAME}:latest"
+        REGISTRY_URL = "localhost:7001"
+        TIMESTAMP = "${new Date().format('yyyyMMddHHmmss')}"
+        IMAGE_TAG = "${REGISTRY_URL}/${IMAGE_NAME}:${TIMESTAMP}"
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/atmaratmar/demo.git'
-            }
-        }
-
-        stage('Build with Maven (in Docker)') {
-            steps {
-                script {
-                    docker.image('maven:3.8.5-openjdk-17').inside {
-                        sh 'mvn clean package -DskipTests'
-                    }
-                }
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
+                    // Build the Docker image locally tagged as "my-springboot-app:latest"
                     docker.build("${IMAGE_NAME}:latest")
                 }
             }
         }
 
-        stage('Tag and Push to Docker Registry') {
+        stage('Tag and Push to Registry') {
             steps {
                 script {
-                    docker.withRegistry("http://${REGISTRY_URL}", '') {  // use '' if no credentials or use your credential id
+                    docker.withRegistry("http://${REGISTRY_URL}", 'admin') {
                         def localImage = docker.image("${IMAGE_NAME}:latest")
-                        def registryImage = docker.image("${IMAGE_TAG}")
+                        def timestampedTag = "${REGISTRY_URL}/${IMAGE_NAME}:${TIMESTAMP}"
 
-                        // Tag the local image for your Docker registry
-                        localImage.tag("${IMAGE_TAG}")
+                        // Tag the local image with the timestamped tag
+                        localImage.tag(timestampedTag)
 
-                        // Push to Docker registry
-                        registryImage.push()
+                        // Push the timestamped image to the registry
+                        docker.image(timestampedTag).push()
                     }
                 }
             }
-        }
-    }
-
-    post {
-        success {
-            echo "Docker image '${IMAGE_TAG}' built and pushed to Docker Registry at ${REGISTRY_URL}."
         }
     }
 }
