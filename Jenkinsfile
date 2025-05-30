@@ -4,15 +4,15 @@ pipeline {
     environment {
         IMAGE_NAME = "my-springboot-app"
         REGISTRY_URL = "localhost:7001"
-        TIMESTAMP = "${new Date().format('yyyyMMddHHmmss')}"
-        IMAGE_TAG = "${REGISTRY_URL}/${IMAGE_NAME}:${TIMESTAMP}"
+        IMAGE_TAG = "${REGISTRY_URL}/${IMAGE_NAME}:latest"
     }
 
     stages {
+        // other stages ...
+
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image locally tagged as "my-springboot-app:latest"
                     docker.build("${IMAGE_NAME}:latest")
                 }
             }
@@ -21,21 +21,27 @@ pipeline {
         stage('Tag and Push to Registry') {
             steps {
                 script {
+                    def localImage = docker.image("${IMAGE_NAME}:latest")
+
+                    // Tag the local image with the registry URL + image name + tag
+                    localImage.tag(IMAGE_TAG)
+
+                    // Login and push the image to your local registry
                     docker.withRegistry("http://${REGISTRY_URL}", 'admin') {
-                        def localImage = docker.image("${IMAGE_NAME}:latest")
-                        def timestampedTag = "${REGISTRY_URL}/${IMAGE_NAME}:${TIMESTAMP}"
-
-                        // Tag the local image with the timestamped tag
-                        localImage.tag(timestampedTag)
-
-                        // Push the timestamped image to the registry
-                        docker.image(timestampedTag).push()
+                        docker.image(IMAGE_TAG).push()
                     }
                 }
             }
         }
     }
+
+    post {
+        success {
+            echo "Docker image '${IMAGE_TAG}' built and pushed successfully."
+        }
+    }
 }
+
 
 
 
