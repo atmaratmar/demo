@@ -1,14 +1,15 @@
 pipeline {
     agent any
     environment {
-        DOCKER_REGISTRY = "localhost:5000"
+        DOCKER_REGISTRY = "localhost:8082" // Change port to your Nexus Docker registry port
         IMAGE_NAME = "${DOCKER_REGISTRY}/my-springboot-app"
     }
     stages {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("my-springboot-app:latest")
+                    // Build image with full registry path so tag is consistent
+                    docker.build("${IMAGE_NAME}:latest")
                 }
             }
         }
@@ -16,9 +17,9 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("http://${env.DOCKER_REGISTRY}", 'nexus-creds') {
-                        def appImage = docker.image("my-springboot-app:latest")
-                        appImage.tag("latest")
-                        appImage.push("latest")
+                        def appImage = docker.image("${IMAGE_NAME}:latest")
+                        // Push the image to the Nexus registry
+                        appImage.push()
                     }
                 }
             }
