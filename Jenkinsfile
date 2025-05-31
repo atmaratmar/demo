@@ -48,7 +48,7 @@ pipeline {
         stage('Tag and Push to Nexus') {
             steps {
                 script {
-                    docker.withRegistry("http://${NEXUS_URL}", 'nexus-creds') {
+                    docker.withRegistry("http://${NEXUS_URL}", 'admin') {
                         docker.image("${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest").push()
                     //docker.withRegistry("http://${NEXUS_URL}", 'admin') {
                         //def localImage = docker.image("${IMAGE_NAME}:latest")
