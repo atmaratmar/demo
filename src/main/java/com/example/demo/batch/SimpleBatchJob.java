@@ -17,6 +17,7 @@ public class SimpleBatchJob implements CommandLineRunner {
     @Override
     public void run(String... args) {
         System.out.println("Starting simple batch job...");
+        System.out.println("test..");
 
         // Simulate batch logic
         try {
