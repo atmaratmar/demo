@@ -68,7 +68,7 @@ pipeline {
     post {
         success {
             echo "Docker image '${IMAGE_TAG}' built, pushed to Nexus, and saved as tar."
-            archiveArtifacts artifacts: 'target/*.jar, target/*.tar', fingerprint: true
+            archiveArtifacts artifacts: 'target/*.jar, target/*.SNAPSHOT', fingerprint: true
         }
     }
 }
