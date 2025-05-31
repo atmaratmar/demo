@@ -7,7 +7,7 @@ pipeline {
         NEXUS_REPO = "docker-hosted"
         NEXUS_URL = "localhost:${NEXUS_PORT}"
         TIMESTAMP = "${new Date().format('yyyyMMddHHmmss')}"
-        IMAGE_TAG = "${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:${TIMESTAMP}"
+        IMAGE_TAG = "${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:${TIMESTAMP}.SNAPSHOT"
         IMAGE_SNAPSHOT = "target/${IMAGE_NAME}-${TIMESTAMP}.SNAPSHOT"
     }
 
