@@ -8,6 +8,7 @@ pipeline {
         NEXUS_URL = "localhost:${NEXUS_PORT}"
         TIMESTAMP = "${new Date().format('yyyyMMddHHmmss')}"
         IMAGE_TAG = "${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:${TIMESTAMP}"
+        IMAGE_TAR = "target/${IMAGE_NAME}-${TIMESTAMP}.tar"
     }
 
     stages {
@@ -46,11 +47,10 @@ pipeline {
             }
         }
 
-        stage('List Docker Images') {
+        stage('Save Docker Image as Tar') {
             steps {
                 script {
-                    echo "Listing Docker images for ${IMAGE_NAME}:"
-                    sh 'docker images | grep ${IMAGE_NAME} || true'
+                    sh "docker save -o ${IMAGE_TAR} ${IMAGE_TAG}"
                 }
             }
         }
@@ -67,11 +67,12 @@ pipeline {
 
     post {
         success {
-            echo "Docker image '${IMAGE_TAG}' built and pushed to Nexus."
-            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            echo "Docker image '${IMAGE_TAG}' built, pushed to Nexus, and saved as tar."
+            archiveArtifacts artifacts: 'target/*.jar, target/*.tar', fingerprint: true
         }
     }
 }
+
 
 
 
