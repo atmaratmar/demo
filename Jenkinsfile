@@ -1,21 +1,13 @@
-
-
-
-
-
-
-
-
-
 pipeline {
     agent any
 
     environment {
         IMAGE_NAME = "my-springboot-app"
         NEXUS_PORT = "8085"
-        NEXUS_REPO = "docker-hosted" // the repo name shown in Nexus
+        NEXUS_REPO = "docker-hosted"
         NEXUS_URL = "localhost:${NEXUS_PORT}"
-        IMAGE_TAG = "${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest"
+        TIMESTAMP = "${new Date().format('yyyyMMddHHmmss')}"
+        IMAGE_TAG = "${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:${TIMESTAMP}"
     }
 
     stages {
@@ -38,9 +30,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image locally tagged as "my-springboot-app:latest"
-                    //docker.build("${IMAGE_NAME}:latest")
-                     docker.build("${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest")
+                    echo "Building image: ${IMAGE_TAG}"
+                    docker.build("${IMAGE_TAG}")
                 }
             }
         }
@@ -49,16 +40,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("http://${NEXUS_URL}", 'admin') {
-                        docker.image("${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest").push()
-                    //docker.withRegistry("http://${NEXUS_URL}", 'admin') {
-                        //def localImage = docker.image("${IMAGE_NAME}:latest")
-
-                        // Tag image properly
-                        //localImage.tag("${NEXUS_REPO}/${IMAGE_NAME}", 'latest', true)
-
-                        // Don't re-declare nexusImage if already declared
-                        //nexusImage = docker.image("${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest")
-                        //nexusImage.push()
+                        docker.image("${IMAGE_TAG}").push()
                     }
                 }
             }
@@ -71,6 +53,79 @@ pipeline {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+// pipeline {
+//     agent any
+//
+//     environment {
+//         IMAGE_NAME = "my-springboot-app"
+//         NEXUS_PORT = "8085"
+//         NEXUS_REPO = "docker-hosted" // the repo name shown in Nexus
+//         NEXUS_URL = "localhost:${NEXUS_PORT}"
+//         IMAGE_TAG = "${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest"
+//     }
+//
+//     stages {
+//         stage('Checkout') {
+//             steps {
+//                 git 'https://github.com/atmaratmar/demo.git'
+//             }
+//         }
+//
+//         stage('Build with Maven (in Docker)') {
+//             steps {
+//                 script {
+//                     docker.image('maven:3.8.5-openjdk-17').inside {
+//                         sh 'mvn clean package -DskipTests'
+//                     }
+//                 }
+//             }
+//         }
+//
+//         stage('Build Docker Image') {
+//             steps {
+//                 script {
+//                     // Build the Docker image locally tagged as "my-springboot-app:latest"
+//                     //docker.build("${IMAGE_NAME}:latest")
+//                      docker.build("${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest")
+//                 }
+//             }
+//         }
+//
+//         stage('Tag and Push to Nexus') {
+//             steps {
+//                 script {
+//                     docker.withRegistry("http://${NEXUS_URL}", 'admin') {
+//                         docker.image("${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest").push()
+//                     //docker.withRegistry("http://${NEXUS_URL}", 'admin') {
+//                         //def localImage = docker.image("${IMAGE_NAME}:latest")
+//
+//                         // Tag image properly
+//                         //localImage.tag("${NEXUS_REPO}/${IMAGE_NAME}", 'latest', true)
+//
+//                         // Don't re-declare nexusImage if already declared
+//                         //nexusImage = docker.image("${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest")
+//                         //nexusImage.push()
+//                     }
+//                 }
+//             }
+//         }
+//     }
+//
+//     post {
+//         success {
+//             echo "Docker image '${IMAGE_TAG}' built and pushed to Nexus."
+//         }
+//     }
+// }
 
 
 
