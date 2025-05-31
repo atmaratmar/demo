@@ -48,14 +48,12 @@ pipeline {
         stage('Run Batch Job') {
             steps {
                 script {
-                    // Optional: confirm jar exists
-                    sh 'ls -l target/*.jar'
-
-                    // Adjust JAR file name if needed
-                    sh 'java -jar target/my-springboot-app-0.0.1-SNAPSHOT.jar --spring.main.web-application-type=none'
+                    def jarFile = sh(script: "ls target/*.jar", returnStdout: true).trim()
+                    sh "java -jar ${jarFile} --spring.main.web-application-type=none"
                 }
             }
         }
+
     }
 
 
