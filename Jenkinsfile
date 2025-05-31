@@ -47,7 +47,7 @@ pipeline {
             }
         }
 
-        stage('Save Docker Image as Tar') {
+        stage('Save Docker Image as SNAPSHOT') {
             steps {
                 script {
                     sh "docker save -o ${IMAGE_TAR} ${IMAGE_TAG}"
