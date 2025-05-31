@@ -52,9 +52,10 @@ pipeline {
                         def nexusImage = docker.image("${IMAGE_TAG}")
 
                         // Tag the local image with the Nexus repository URL
-                        localImage.tag("${IMAGE_TAG}")
+                        localImage.tag("${NEXUS_REPO}/${IMAGE_NAME}", 'latest', true)
 
                         // Push the image to Nexus Docker registry
+                        def nexusImage = docker.image("${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest")
                         nexusImage.push()
                     }
                 }
