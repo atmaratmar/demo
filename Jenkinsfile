@@ -8,7 +8,7 @@ pipeline {
         NEXUS_URL = "localhost:${NEXUS_PORT}"
         TIMESTAMP = "${new Date().format('yyyyMMddHHmmss')}"
         IMAGE_TAG = "${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:${TIMESTAMP}"
-        IMAGE_TAR = "target/${IMAGE_NAME}-${TIMESTAMP}.SNAPSHOT"
+        IMAGE_SNAPSHOT = "target/${IMAGE_NAME}-${TIMESTAMP}.SNAPSHOT"
     }
 
     stages {
@@ -50,7 +50,7 @@ pipeline {
         stage('Save Docker Image as SNAPSHOT') {
             steps {
                 script {
-                    sh "docker save -o ${IMAGE_TAR} ${IMAGE_TAG}"
+                    sh "docker save -o ${IMAGE_SNAPSHOT} ${IMAGE_TAG}"
                 }
             }
         }
