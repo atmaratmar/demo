@@ -1,60 +1,69 @@
+// pipeline {
+//     agent any
+//
+//     environment {
+//         IMAGE_NAME = "my-springboot-app"
+//         NEXUS_PORT = "8085"
+//         NEXUS_REPO = "docker-hosted"
+//         NEXUS_URL = "localhost:${NEXUS_PORT}"
+//         TIMESTAMP = "${new Date().format('yyyyMMddHHmmss')}"
+//         IMAGE_TAG = "${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:${TIMESTAMP}"
+//     }
+//
+//     stages {
+//         stage('Checkout') {
+//             steps {
+//                 git 'https://github.com/atmaratmar/demo.git'
+//             }
+//         }
+//
+//         stage('Build with Maven (in Docker)') {
+//             steps {
+//                 script {
+//                     docker.image('maven:3.8.5-openjdk-17').inside {
+//                         sh 'mvn clean package -DskipTests'
+//                     }
+//                 }
+//             }
+//         }
+//
+//         stage('Build Docker Image') {
+//             steps {
+//                 script {
+//                     echo "Building image: ${IMAGE_TAG}"
+//                     docker.build("${IMAGE_TAG}")
+//                 }
+//             }
+//         }
+//
+//         stage('Tag and Push to Nexus') {
+//             steps {
+//                 script {
+//                     docker.withRegistry("http://${NEXUS_URL}", 'admin') {
+//                         docker.image("${IMAGE_TAG}").push()
+//                     }
+//                 }
+//             }
+//         }
+//     }
+//
+//     post {
+//         success {
+//             echo "Docker image '${IMAGE_TAG}' built and pushed to Nexus."
+//         }
+//     }
+// }
+
 pipeline {
     agent any
-
-    environment {
-        IMAGE_NAME = "my-springboot-app"
-        NEXUS_PORT = "8085"
-        NEXUS_REPO = "docker-hosted"
-        NEXUS_URL = "localhost:${NEXUS_PORT}"
-        TIMESTAMP = "${new Date().format('yyyyMMddHHmmss')}"
-        IMAGE_TAG = "${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:${TIMESTAMP}"
-    }
-
     stages {
-        stage('Checkout') {
+        stage('Test Stage') {
             steps {
-                git 'https://github.com/atmaratmar/demo.git'
+                echo 'Stage is working'
             }
-        }
-
-        stage('Build with Maven (in Docker)') {
-            steps {
-                script {
-                    docker.image('maven:3.8.5-openjdk-17').inside {
-                        sh 'mvn clean package -DskipTests'
-                    }
-                }
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    echo "Building image: ${IMAGE_TAG}"
-                    docker.build("${IMAGE_TAG}")
-                }
-            }
-        }
-
-        stage('Tag and Push to Nexus') {
-            steps {
-                script {
-                    docker.withRegistry("http://${NEXUS_URL}", 'admin') {
-                        docker.image("${IMAGE_TAG}").push()
-                    }
-                }
-            }
-        }
-    }
-
-    post {
-        success {
-            echo "Docker image '${IMAGE_TAG}' built and pushed to Nexus."
         }
     }
 }
-
-
 
 
 
