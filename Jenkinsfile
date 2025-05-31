@@ -39,7 +39,8 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image locally tagged as "my-springboot-app:latest"
-                    docker.build("${IMAGE_NAME}:latest")
+                    //docker.build("${IMAGE_NAME}:latest")
+                     docker.build("${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest")
                 }
             }
         }
@@ -47,15 +48,17 @@ pipeline {
         stage('Tag and Push to Nexus') {
             steps {
                 script {
-                    docker.withRegistry("http://${NEXUS_URL}", 'admin') {
-                        def localImage = docker.image("${IMAGE_NAME}:latest")
+                    docker.withRegistry("http://${NEXUS_URL}", 'nexus-creds') {
+                        docker.image("${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest").push()
+                    //docker.withRegistry("http://${NEXUS_URL}", 'admin') {
+                        //def localImage = docker.image("${IMAGE_NAME}:latest")
 
                         // Tag image properly
-                        localImage.tag("${NEXUS_REPO}/${IMAGE_NAME}", 'latest', true)
+                        //localImage.tag("${NEXUS_REPO}/${IMAGE_NAME}", 'latest', true)
 
                         // Don't re-declare nexusImage if already declared
-                        nexusImage = docker.image("${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest")
-                        nexusImage.push()
+                        //nexusImage = docker.image("${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:latest")
+                        //nexusImage.push()
                     }
                 }
             }
