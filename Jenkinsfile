@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "my-springboot-app"
+        IMAGE_NAME = "my-springboot-apptest"
         NEXUS_PORT = "8085"
         NEXUS_REPO = "docker-hosted"
         NEXUS_URL = "localhost:${NEXUS_PORT}"
