@@ -4,29 +4,22 @@ pipeline {
     environment {
         IMAGE_NAME = "my-springboot-apptest"
 
-        // Name of the second Nexus container
-        NEXUS_HOST = "nexus2"
-
-        // Internal Docker registry port configured in Nexus
-        NEXUS_PORT = "8085"
-
-        // Docker hosted repository name in Nexus
+        // IMPORTANT: use host access (NOT nexus2)
+        NEXUS_HOST = "localhost"
+        NEXUS_PORT = "8985"
         NEXUS_REPO = "docker-hosted"
 
-        // Jenkins reaches Nexus through the Docker network
         NEXUS_URL = "${NEXUS_HOST}:${NEXUS_PORT}"
 
-        // Timestamp for unique image tags
         TIMESTAMP = "${new Date().format('yyyyMMddHHmmss')}"
 
-        // Full Docker image tag
         IMAGE_TAG = "${NEXUS_URL}/${NEXUS_REPO}/${IMAGE_NAME}:${TIMESTAMP}.SNAPSHOT"
 
-        // File used to save the image as a tar archive
         IMAGE_SNAPSHOT = "target/${IMAGE_NAME}-${TIMESTAMP}.SNAPSHOT.tar"
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 git 'https://github.com/atmaratmar/demo.git'
@@ -46,18 +39,17 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    echo "Building Docker image: ${IMAGE_TAG}"
-                    docker.build(IMAGE_TAG)
+                    echo "Building image: ${IMAGE_TAG}"
+                    docker.build("${IMAGE_TAG}")
                 }
             }
         }
 
-        stage('Push Docker Image to Nexus') {
+        stage('Push to Nexus') {
             steps {
                 script {
-                    // 'nexus-credentials' is the Jenkins credential ID
                     docker.withRegistry("http://${NEXUS_URL}", 'nexus-credentials') {
-                        docker.image(IMAGE_TAG).push()
+                        docker.image("${IMAGE_TAG}").push()
                     }
                 }
             }
@@ -87,10 +79,14 @@ pipeline {
 
     post {
         success {
-            echo "Docker image '${IMAGE_TAG}' built, pushed to Nexus, and saved as TAR."
+            echo "SUCCESS: Image built, pushed to Nexus, and archived"
 
             archiveArtifacts artifacts: 'target/*.jar, target/*.tar',
                              fingerprint: true
+        }
+
+        failure {
+            echo "FAILED: Check logs"
         }
     }
 }
